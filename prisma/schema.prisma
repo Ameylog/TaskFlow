@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum NotificationType {
+  TASK_ASSIGNED
+  TASK_UPDATED
+  TASK_COMPLETED
+  COMMENT_ADDED
+}
+
+model User {
+  id               Int       @id @default(autoincrement())
+  name             String    @db.VarChar(80)
+  email            String    @unique
+  password         String
+  todos            Todo[]
+  role             Role      @default(USER)
+  isActive         Boolean   @default(true)
+  notifyOnAssign   Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  resetToken       String?
+  resetTokenExpiry DateTime?
+
+  receivedNotifications Notification[] @relation("NotificationRecipient")
+  sentNotifications     Notification[] @relation("NotificationActor")
+
+  @@index([email, isActive]) // Composite for login
+  @@index([isActive]) // For filtering
+  @@index([role]) // Keep existing
+  @@index([createdAt]) // For sorting
+  @@map("users")
+}
+
+model Todo {
+  id            Int            @id @default(autoincrement())
+  title         String         @db.VarChar(85)
+  completed     Boolean        @default(false)
+  description   String?        @db.Text
+  dueDate       DateTime?      @db.DateTime
+  priority      String         @default("Low")
+  category      String         @default("General")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        Int
+  notifications Notification[]
+
+  @@index([userId, completed]) // Composite for common queries
+  @@index([title]) // For search
+  @@index([createdAt]) // For date sorting
+  @@index([priority]) // For filtering by priority
+  @@index([category]) // For filtering by category
+  @@index([dueDate]) // For filtering by due date
+  @@map("todos")
+}
+
+model Notification {
+  id      Int  @id @default(autoincrement())
+  userId  Int
+  actorId Int
+  taskId  Int? // 👈 link to task
+
+  type    NotificationType @default(TASK_ASSIGNED)
+  message String
+  isRead  Boolean          @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User  @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  actor User  @relation("NotificationActor", fields: [actorId], references: [id])
+  task  Todo? @relation(fields: [taskId], references: [id])
+
+  @@index([userId])
+  @@index([actorId])
+  @@index([taskId])
+  @@map("notifications")
+}

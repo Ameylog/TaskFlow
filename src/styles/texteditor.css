@@ -1,0 +1,31 @@
+/* Reduce the overall height of the toolbar row */
+.tox .tox-toolbar__primary {
+    height: 30px !important;
+    min-height: 30px !important;
+}
+
+/* Shrink undo/redo and other icon buttons */
+.tox .tox-tbtn {
+    height: 24px !important;
+    width: 24px !important;
+    margin: 2px !important;
+}
+
+/* Shrink Select Tags (Paragraph, Font Family, Font Size) */
+.tox .tox-tbtn--select {
+    height: 24px !important;
+    font-size: 11px !important;
+    /* Smaller text inside boxes */
+    padding: 0 4px !important;
+    width: 60px !important;
+    /* Allows them to be narrower */
+}
+
+/* Scale down the icons (arrows) inside the buttons */
+.tox .tox-tbtn svg {
+    transform: scale(0.75);
+}
+
+.tox .tox-toolbar__group {
+    padding: 0px 8px 0px 8px;
+}
