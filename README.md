@@ -1,4 +1,5 @@
-# TaskFlow - Full-Stack Task Management System
+# TaskFlow -Task Management System  [Inspired from Jira software]
+
 TaskFlow is a task management application where users can organize their task, track progress, manage deadlines, receive notifications, and handle their work from a personal dashboard
 
 ## 🚀 Features
